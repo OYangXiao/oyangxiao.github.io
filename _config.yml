@@ -18,7 +18,7 @@ theme_settings:
   favicon: assets/favicon.ico
 
   # Header and footer text
-  header_text: 办正事，找乐子
+  header_text: 办正事 or 找乐子
   header_feature_image: assets/img/pexels/triangular.jpeg
   footer_text: >
     Powered by <a href="https://jekyllrb.com/">Jekyll</a> with THEME： <a href="https://github.com/sylhare/Type-on-Strap">Type on Strap</a>
@@ -94,14 +94,10 @@ paginate_path: "blog/page:num"
 
 # AUTHORS
 authors:
-  mhagnumdw: # author-id
-    name: MhagnumDw
-    avatar: "assets/img/avatars/mhagnumdw_avatar.jpg"
-    url:
-  sylhare:
-    name: Sylhare
-    avatar: "assets/img/avatars/sylhare_avatar.png"
-    url: "https://github.com/sylhare"
+  OYX: # author-id
+    name: OYX
+    avatar: "assets/img/avatars/binbinfrog.jpg"
+    url: "https://github.com/binbinfrog"
 
 # PORTFOLIO
 collections:
