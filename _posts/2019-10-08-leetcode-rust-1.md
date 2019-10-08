@@ -12,13 +12,23 @@ excerpt_separator: <!--more-->
 
 第一题：[两数之和](https://leetcode-cn.com/problems/two-sum)
 
+> 给定一个整数数组`nums`和一个目标值`target`，请你在该数组中找出和为目标值的那**两个**整数，并返回他们的数组下标。你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。
+> 示例:
+
+```rust
+给定 nums = [2, 7, 11, 15], target = 9
+
+因为 nums[0] + nums[1] = 2 + 7 = 9
+所以返回 [0, 1]
+```
+
 <!--more-->
 
 总结一下遇到的相关的问题
 
-## Rust语法
+## Rust 语法
 
-### for的基本用法
+### for 的基本用法
 
 常见的教程上都是
 {% highlight js %}
@@ -26,9 +36,9 @@ for item in iterator
 {% endhighlight %}
 即使用 for 对一个迭代器（iterator）做迭代。
 
-rust中for不可以直接迭代数组，只能迭代iterator，常见的迭代器来源有：
+rust 中 for 不可以直接迭代数组，只能迭代 iterator，常见的迭代器来源有：
 
-- range（比如：1..11，字符串的各个字符的range）
+- range（比如：1..11，字符串的各个字符的 range）
 - 从数组生成的 iterator（比如：vec.iter()）
 
 可以关联到常用的迭代器的操作符（map、rev...）这些。
@@ -38,11 +48,11 @@ rust中for不可以直接迭代数组，只能迭代iterator，常见的迭代�
 for (index, value) in nums.iter().enumerate()
 {% endhighlight %}
 
-### usize 和 as转换类型
+### usize 和 as 转换类型
 
-usize与CPU和操作系统相关，使用usize总是可以表示一个指向内存中的具体地址，32为系统中这个值是4-byte，64位中是8-byte。
-enumerate中获得的index都是usize类型的，由于题目只接受i32类型的返回结果，需要显式使用as将其转换为i32类型。
+usize 与 CPU 和操作系统相关，使用 usize 总是可以表示一个指向内存中的具体地址，32 为系统中这个值是 4-byte，64 位中是 8-byte。
+enumerate 中获得的 index 都是 usize 类型的，由于题目只接受 i32 类型的返回结果，需要显式使用 as 将其转换为 i32 类型。
 
 ## 题解
 
-本题的技巧主要在于减少循环的次数，如果简单的先将所有数字放入hashmap中，然后遍历所有数字，则需要O(2n)的时间，如果将数组中数字放入hashmap的时候就与hashmap中已经存在的数字作比较（hashmap中已经存在的数字都是向前匹配失败的数字），那么只需要一次循环就完成检索，时间复杂度是O(n)
+本题的技巧主要在于减少循环的次数，如果简单的先将所有数字放入 hashmap 中，然后遍历所有数字，则需要 O(2n)的时间，如果将数组中数字放入 hashmap 的时候就与 hashmap 中已经存在的数字作比较（hashmap 中已经存在的数字都是向前匹配失败的数字），那么只需要一次循环就完成检索，时间复杂度是 O(n)
