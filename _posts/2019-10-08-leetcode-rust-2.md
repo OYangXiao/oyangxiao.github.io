@@ -5,10 +5,10 @@ feature-img: "assets/img/pexels/linked-list.jpeg"
 thumbnail: "assets/img/pexels/linked-list.jpeg"
 image: "assets/img/pexels/linked-list.jpeg" #seo tag
 tags: [LeetCode, Rust]
-author-id: sylhare
+author-id: OYX
 ---
 
-# 没想到那么快就遇上了传说中的 rust 大坑：链表
+## 没想到那么快就遇上了传说中的 rust 大坑：链表
 
 第二题：[两数相加](https://leetcode-cn.com/problems/add-two-numbers)
 
@@ -55,7 +55,7 @@ result_next = &mut result_next.as_mut().unwrap().next;
 
 上面这段代码首先创建了将要返回的链表的第一个元素，此时重点在于获取该元素的 mutable 引用（`&mut`），之后我们就可以通过`*`操作符将其解引用并赋值。
 
-好久没有写C了，对于引用和解引用的使用很不熟练，虽然rust的引用和c里面不一样，但是以上这段操作可以类比下面这段代码
+好久没有写 C 了，对于引用和解引用的使用很不熟练，虽然 rust 的引用和 c 里面不一样，但是以上这段操作可以类比下面这段代码
 
 ```c
 int a = 1;
