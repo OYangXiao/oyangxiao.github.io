@@ -6,11 +6,14 @@ thumbnail: "assets/img/pexels/linked-list.jpeg"
 image: "assets/img/pexels/linked-list.jpeg" #seo tag
 tags: [LeetCode, Rust]
 author-id: OYX
+excerpt_separator: <!--more-->
 ---
 
 ## 没想到那么快就遇上了传说中的 rust 大坑：链表
 
 第二题：[两数相加](https://leetcode-cn.com/problems/add-two-numbers)
+
+<!--more-->
 
 一直听说 rust 的链表是个坑，因为 rust 的所有权机制导致写起来非常困难，这里 leetcode 给的链表的定义其实就有问题。
 
@@ -68,3 +71,53 @@ int* pa = &a;
 ## 题解
 
 （不要犯错就行了）
+
+## 代码
+
+```rust
+impl Solution {
+  pub fn add_two_numbers(
+    l1: Option<Box<ListNode>>,
+    l2: Option<Box<ListNode>>,
+  ) -> Option<Box<ListNode>> {
+    let mut l1_next = l1;
+    let mut l2_next = l2;
+    let mut result_link:Option<Box<ListNode>> = None;
+    let mut result_next = &mut result_link;
+    let mut carry = false;
+
+    while carry || l1_next.is_some() ||l2_next.is_some()  {
+      let val1 = match l1_next {
+        Some(node) => {
+          l1_next = node.next;
+          node.val
+        }
+        None => 0,
+      };
+      let val2 = match l2_next {
+        Some(node) => {
+          l2_next = node.next;
+          node.val
+        }
+        None => 0,
+      };
+
+      let mut val = val1 + val2 + if carry { 1 } else { 0 };
+      carry = false;
+
+      if val > 9 {
+        val = val - 10;
+        carry = true;
+      }
+
+      *result_next = Some(Box::new(ListNode::new(val)));
+      result_next = &mut result_next.as_mut().unwrap().next;
+    }
+    result_link
+  }
+}
+```
+
+## 成绩
+
+很悲惨，前几天提交的时候运行时间还是4ms，2MB，怎么过完十一变成了8ms了，过段时间研究研究时间更短的解法。

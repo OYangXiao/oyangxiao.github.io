@@ -49,3 +49,33 @@ enumerate 中获得的 index 都是 usize 类型的，由于题目只接受 i32 
 ## 题解
 
 本题的技巧主要在于减少循环的次数，如果简单的先将所有数字放入 hashmap 中，然后遍历所有数字，则需要 O(2n)的时间，如果将数组中数字放入 hashmap 的时候就与 hashmap 中已经存在的数字作比较（hashmap 中已经存在的数字都是向前匹配失败的数字），那么只需要一次循环就完成检索，时间复杂度是 O(n)
+
+## 代码
+
+```rust
+use std::collections::HashMap;
+
+impl Solution {
+    pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
+        let mut numMap = HashMap::with_capacity(nums.len());
+        for (second_index, second_value) in nums.iter().enumerate() {
+            let first_index = numMap.get(&(target - second_value));
+            match first_index {
+                None => {
+                    numMap.insert(*second_value, second_index as i32);
+                }
+                Some(first_index) => {
+                    return vec![*first_index, second_index as i32];
+                }
+            }
+        }
+        vec![]
+    }
+}
+```
+
+## 成绩
+
+0ms，击败了100%！
+
+2.2MB，击败了100%！
