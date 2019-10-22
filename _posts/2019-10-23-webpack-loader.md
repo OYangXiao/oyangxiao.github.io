@@ -18,6 +18,8 @@ excerpt_separator: <!--more-->
 
 那么问题来了：**如何能够在 Typescript 中正确的引用该配置文件的类型呢？**
 
+<!--more-->
+
 首先想到的是通过 vscode 的[Paste JSON as Code](https://marketplace.visualstudio.com/items?itemName=quicktype.quicktype)插件隔一段时间粘贴一下类型来做到类型的引入，但这有个问题：**不够自动化，不高端！**
 
 俗话说“懒惰使人进步”，我们必须想一个办法能够在开发时引入配置文件的类型来帮助我们写代码，部署时候又能够正确获得我们需要的 json 文件。
