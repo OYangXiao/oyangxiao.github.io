@@ -52,7 +52,9 @@ export type ConfigJson = typeof configJson;
 
 ### 那么还有什么能够帮我们在写代码之后和用代码之前做前一种方案的那种转换呢
 
-很显然这就是 webpack 的角色了嘛。webpack 有两种扩展机制，一种叫 loader，一种是 plugin，loader 用于处理资源，plugin 用于改变 webpack 的行为，很显然我们需要的就是一个 loader，一个能帮我们把我们的 ts 文件中那个对象变成一个 json 文件的 loader。
+很显然这就是 webpack 的角色了嘛。
+webpack 有两种扩展机制，一种叫 loader，一种是 plugin，loader 用于处理资源，plugin 用于改变 webpack 的行为。
+很显然我们需要的就是一个 loader，一个能帮我们把我们的 ts 文件中那个对象变成一个 json 文件的 loader。
 
 ## 开搞
 
@@ -60,4 +62,84 @@ export type ConfigJson = typeof configJson;
 
 安装`loader-runner`和`webpack`到 devDependencies。
 
-然后在 test 目录下创建
+然后在项目根目录下创建一个 loaders 文件夹，以后我们所有的 loader 就都放在这里文件夹里了。
+
+我们知道 webpack 的生命周期是这个样子的
+
+<img src="/assets/img/pexels/webpack-life-time.jpg" />
+
+loader 的加载是在最开始解析 webpack.config.js 的时候就完成了的，所以如果不想每次测试 loader 都`ctrl+c -> 向上箭头 -> enter的话`就需要用我们的 loader-runner 来执行 loader 做测试。
+
+loaders 文件夹建立 loader-runner 的脚本，就叫做 run-loaders.js 好了。内容如下：
+
+```js
+const fs = require("fs");
+const path = require("path");
+const { runLoaders } = require("loader-runner");
+
+runLoaders(
+  {
+    resource: "./src/runtime.config.ts",
+
+    loaders: [
+      {
+        loader: path.resolve(__dirname, "./runtime-configs-transformer"),
+        options: {
+          name: "demo.[ext]"
+        }
+      }
+    ],
+
+    context: {
+      emitFile: () => {}
+    },
+    readResource: fs.readFile.bind(fs)
+  },
+  (err, result) => (err ? console.error(err) : console.log(result))
+);
+```
+
+很简单，就是 resource 中指明要被处理的文件，然后在 loaders 中如同 webpack 配置文件那样依次写下要使用的 loader 就可以了。
+
+我们将要写的 loader 的名字叫做`runtime-configs-transformer`，它的功能就如上述所说将一个运行时配置文件做转换。
+
+这时候我们的想法是这样的：
+
+- 我们需要使用 ts 文件来做开发
+- ts 文件需要被转换，那么我们可以使用 typescript 来编译这个文件，将其转换为普通 js 文件
+- 转换之后的 js 文件类似于这样
+
+```js
+const runtimeConfig = {
+  /*配置内容*/
+};
+```
+
+- 如果能够将这段内容作为字符串的代码 eval 出来就可以获得声明的对象了
+- 最后只需要将其写入目标文件 runtime-config.js
+
+很多时候写 loader 为我们需要动用 ast 来将代码分析为语法树，可是我们这次的需求并没有那么复杂。
+
+查看文档没有发现 typescript 的 compiler 该如何调用，后来就想到既然我们的配置文件格式是固定的，那我干脆直接把他当作一个文本文件来处理岂不是更方便，于是就有了如下代码:
+
+```js
+// content是被处理的文本内容
+const exportIndex = content.indexOf("export");
+const equalIndex = content.lastIndexOf("=");
+const result = JSON.stringify(
+  eval(content.substring(equalIndex + 1, exportIndex))
+);
+```
+
+好嘛，先 eval 再 JSON.stringify 出来就是标准的 json 字符串了，最后再写入目标位置
+
+```js
+fs.writeFileSync(
+  path.resolve(__dirname, "../public/runtime-config.json"),
+  result
+);
+```
+
+就成功了。
+
+这次先解决工作中的问题，下次有需要再来学习ast吧。
