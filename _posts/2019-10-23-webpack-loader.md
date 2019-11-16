@@ -106,6 +106,15 @@ runLoaders(
 这时候我们的想法是这样的：
 
 - 我们需要使用 ts 文件来做开发
+- 待转换的文件是这样的
+
+```typescript
+const runtimeConfig = {
+  /*配置内容*/
+};
+export type RuntimeConfig = typeof runtimeConfig
+```
+
 - ts 文件需要被转换，那么我们可以使用 typescript 来编译这个文件，将其转换为普通 js 文件
 - 转换之后的 js 文件类似于这样
 
