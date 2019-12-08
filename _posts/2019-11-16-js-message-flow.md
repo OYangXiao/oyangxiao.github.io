@@ -15,4 +15,6 @@ excerpt_separator: <!--more-->
 
 思考了几天，尽可能地少用js动画实现了一个，这里做个记录。
 
+具体的代码在这里可以看到[message-flow](https://github.com/OYangXiao/message-flow)
+
 
