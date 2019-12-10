@@ -26,8 +26,6 @@ excerpt_separator: <!--more-->
 
 说到自动化，我们平时使用的 webpack 就是一个很好的例子，我本人没有用过 gulp 这类工具，不过想来自动化的工作流无非就是`监视文件->处理->输出`这一套，我们可以找一找合适的工具。
 
-### 从何处来，往何处去
-
 现在目标很明确，我们已有的是一个 json 文件，开发时需要获得 json 的类型，那么这个 json 就应该被读取出来然后作为一个普通的 js 对象出现在一个 ts 文件中。每次 json 被修改了，这个转换过程就会自动执行一次。
 
 这么说来我们只要用 node 做一个监视指定文件的工具，通过 fs.readFile 的方式把 json 的内容读出来，然后写成
@@ -52,11 +50,9 @@ export type ConfigJson = typeof configJson;
 
 ### 那么还有什么能够帮我们在写代码之后和用代码之前做前一种方案的那种转换呢
 
-很显然这就是 webpack 的角色了嘛。
-webpack 有两种扩展机制，一种叫 loader，一种是 plugin，loader 用于处理资源，plugin 用于改变 webpack 的行为。
-很显然我们需要的就是一个 loader，一个能帮我们把我们的 ts 文件中那个对象变成一个 json 文件的 loader。
+想到了可以使用webpack的loader来完成这样的工作，因为loader可以指定要处理什么样名字的文件，那么我或许可以指定处理到我的目标文件的时候将其转换并输出到JSON文件。
 
-## 开搞
+## 开搞（然而这一节方法是错的，最后会有修正）
 
 首先创建一个练习文件夹，就叫它`test`吧。
 
@@ -133,14 +129,14 @@ const runtimeConfig = {
 
 ```js
 // content是被处理的文本内容
-const exportIndex = content.indexOf("export");
-const equalIndex = content.lastIndexOf("=");
+const equalIndex = content.indexOf("=");
+const exportIndex = content.lastIndexOf("export");
 const result = JSON.stringify(
   eval(content.substring(equalIndex + 1, exportIndex))
 );
 ```
 
-好嘛，先 eval 再 JSON.stringify 出来就是标准的 json 字符串了，最后再写入目标位置
+OK，先 eval 再 JSON.stringify 出来就是标准的 json 字符串了，最后再写入目标位置
 
 ```js
 fs.writeFileSync(
@@ -151,4 +147,46 @@ fs.writeFileSync(
 
 就成功了。
 
-这次先解决工作中的问题，下次有需要再来学习ast吧。
+## 然而很快就打脸了
+
+在vue.config.js中配置这样一条规则
+```js
+module.exports = {
+  chainWebpack: config => {
+    config.module
+    .rule('my-config')
+    .test(function(filename){return filename === path.resolve(__dirname, '/src/runtime.config.ts')})
+    .use('./loaders/runtime-configs-transformer')
+    .loader('./loaders/runtime-configs-transformer')
+    .end()
+  }
+}
+```
+却发现没有生效，what happened？
+
+### 原来是被tree shake掉了
+
+webpack从某一版本中加入了tree shake的功能，就是将不使用到的文件不打包。
+
+所以我们的config文件仅仅导出了type，却没有导出有效的代码，也没有其他地方引用它，所以被tree shake掉了。
+
+最后没办法，想了一个比较tricky的方式，就是直接在rule的test这里写逻辑代码
+```js
+module.exports = {
+  chainWebpack: config => {
+    config.module
+    .rule('my-config')
+    .test(function(filename){
+      if(filename === path.resolve(__dirname, /*将test的文件名改成某个只引用一次的文件，比如pages中的入口文件*/)}){
+        // 直接用fs读出要处理的文件内容
+        // 读出来的东西需要转换为string内容做处理
+        const code = fs.readFileSync(path.resolve(__dirname, './src/runtime.config.ts')).toString()
+        // 将前面loader的处理过程直接拿过来
+      }
+    })
+    .end()
+  }
+}
+```
+最后就只能先这么样了，以后再来研究如何用webpack执行一些自动化的工作，或者我还是需要引入gulp？
+
